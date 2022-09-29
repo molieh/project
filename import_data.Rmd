@@ -1,20 +1,74 @@
 ---
 title: "export_data"
-author: "Moliehi"
+author: "Group P"
 date: '2022-09-27'
 output: pdf_document
 ---
 
+This is a team assignment; each team should complete and turn in a PDF created from an Rmd via Github. Please include code and output for the following components:
 
+Description of data set
+1. What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+2. How does the data set relate to the group problem statement and question?
+
+
+
+\newpage 
+Import statement
+NOTE: Please use data sets available in the PHW251 Project Data github repo Links to an external site. (this is important to make sure everyone is using the same data sets)(done)
+Use appropriate import function and package based on the type of file(done)
+Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)(working on it)
+Document the import process(working on it)
+
+Loading the library to be used in this assignment
 ```{r}
 library(tidyverse)
 library(readr)
+library(janitor)
 ```
 
-
+Importing data from git repositories
 ```{r}
 file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
-monkey_pox <-read_csv(file_path1)
+monkey_pox <-read_csv(file_path1)%>% clean_names()
 
+file_path2 <-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
+pop_denominator<- read.csv(file_path2)%>% clean_names()
+
+file_path3 <- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
+census_stats <- read.csv(file_path3)%>% clean_names()
+
+file_path4<- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
+
+world_country_region <- read.csv(file_path4)%>% clean_names()
 ```
 
+
+\newpage
+Data manipulation and cleaning
+```{r}
+#aggregating the monkey pox data set to the desired time period (week or month) 
+monkey_pox
+
+library(lubridate)
+ monkey_pox <- monkey_pox%>% mutate(months_date= month(date_rep))
+ monkey_pox
+```
+Joining monkey pox data set with pop denominator 
+
+```{r}
+print(pop_denominator)
+merged_data <- merge(new_az_players_dataset, new_pregame_stats, by="player")
+```
+\newpage
+
+Identify data types for 5+ data elements/columns/variables
+Identify 5+ data elements required for your specified scenario. If <5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.
+Utilize functions or resources in RStudio to determine the types of each data element (i.e. character, numeric, factor)
+Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type? 
+
+\newpage
+Provide a basic description of the 5+ data elements
+Numeric: mean, median, range
+Character:  unique values/categories
+Or any other descriptives that will be useful to the analysis
