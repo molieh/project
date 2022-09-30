@@ -36,56 +36,64 @@ Importing data from git repositories
 ```{r}
 file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
 monkey_pox <-read_csv(file_path1,na = c("", "NA", "*", "n/a"))%>% clean_names()
-
+monkey_pox
 
 file_path2 <-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
 pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()
+pop_denominator
 
 file_path3 <- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
 census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% clean_names()
+census_stats
 
 file_path4<- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
-
 world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>% clean_names()
-```
-```{r}
-# checking if there is something unique about the variables in different dataset
-x<-unique(monkey_pox$country_code)
-y<-unique(pop_denominator$geo)
+world_country_region
 
 ```
 
 
-\newpage
-Data manipulation and cleaning
-```{r}
-#aggregating the monkey pox data set to the desired time period (week or month)& renaming the country code so that we can merge with pop denominator dataset 
-monkey_pox
 
-library(lubridate)
- monkey_pox <- monkey_pox%>% mutate(months_date= month(date_rep))%>%
-   rename(geo=country_code)
- monkey_pox
-```
-Joining monkey pox data set with pop denominator 
-
-```{r}
-
-merged_data <- merge(monkey_pox, pop_denominator, by="geo")
-
-# choosing the most recent time period
-
-
-```
 \newpage
 
 Identify data types for 5+ data elements/columns/variables
-Identify 5+ data elements required for your specified scenario. If <5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.
+
 Utilize functions or resources in RStudio to determine the types of each data element (i.e. character, numeric, factor)
-Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type? 
+ 
+
+```{r}
+library(purrr)
+map(monkey_pox, class)
+map(pop_denominator,class)
+map(world_country_region,class)
+map(census_stats,class)
+```
+Identify 5+ data elements required for your specified scenario. If <5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.
+
+_confirmed cases, sub_region, time period, age, education and sex_
+
+Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type?
 
 \newpage
 Provide a basic description of the 5+ data elements
 Numeric: mean, median, range
+
+```{r}
+summary(monkey_pox$conf_cases)
+summary(pop_denominator$time_period)
+```
+
+
 Character:  unique values/categories
+```{r}
+x<-unique(world_country_region$sub_region)
+x
+z<-unique(census_stats$age)
+z
+w<- unique(census_stats$edu)
+w
+y<- unique(census_stats$sex)
+y
+```
+
 Or any other descriptives that will be useful to the analysis
