@@ -38,17 +38,17 @@ file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/eu
 monkey_pox <-read_csv(file_path1,na = c("", "NA", "*", "n/a"))%>% clean_names()
 monkey_pox
 
-file_path2 <-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
+file_path2<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
 pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()
-pop_denominator
 
-file_path3 <- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
+
+file_path3<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
 census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% clean_names()
-census_stats
 
-file_path4<- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
+
+file_path4<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
 world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>% clean_names()
-world_country_region
+
 
 ```
 
