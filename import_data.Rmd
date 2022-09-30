@@ -9,8 +9,13 @@ This is a team assignment; each team should complete and turn in a PDF created f
 
 Description of data set
 1. What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+
+_Data on monkey pox cases in the EU/EEA is accessible at:_ https://www.ecdc.europa.eu/en/publications-data/data-monkeypox-cases-eueea
+
+
 2. How does the data set relate to the group problem statement and question?
 
+_The data set is going to help us understand how monkey pox case rates may differ by region and various demographic factors,additionally, the data set will allow us to determine if there is a relationship between certain demographics and monkey pox case rates._
 
 
 \newpage 
@@ -30,35 +35,47 @@ library(janitor)
 Importing data from git repositories
 ```{r}
 file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
-monkey_pox <-read_csv(file_path1)%>% clean_names()
+monkey_pox <-read_csv(file_path1,na = c("", "NA", "*", "n/a"))%>% clean_names()
+
 
 file_path2 <-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
-pop_denominator<- read.csv(file_path2)%>% clean_names()
+pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()
 
 file_path3 <- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
-census_stats <- read.csv(file_path3)%>% clean_names()
+census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% clean_names()
 
 file_path4<- "https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
 
-world_country_region <- read.csv(file_path4)%>% clean_names()
+world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>% clean_names()
+```
+```{r}
+# checking if there is something unique about the variables in different dataset
+x<-unique(monkey_pox$country_code)
+y<-unique(pop_denominator$geo)
+
 ```
 
 
 \newpage
 Data manipulation and cleaning
 ```{r}
-#aggregating the monkey pox data set to the desired time period (week or month) 
+#aggregating the monkey pox data set to the desired time period (week or month)& renaming the country code so that we can merge with pop denominator dataset 
 monkey_pox
 
 library(lubridate)
- monkey_pox <- monkey_pox%>% mutate(months_date= month(date_rep))
+ monkey_pox <- monkey_pox%>% mutate(months_date= month(date_rep))%>%
+   rename(geo=country_code)
  monkey_pox
 ```
 Joining monkey pox data set with pop denominator 
 
 ```{r}
-print(pop_denominator)
-merged_data <- merge(new_az_players_dataset, new_pregame_stats, by="player")
+
+merged_data <- merge(monkey_pox, pop_denominator, by="geo")
+
+# choosing the most recent time period
+
+
 ```
 \newpage
 
