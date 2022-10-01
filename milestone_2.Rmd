@@ -10,12 +10,16 @@ This is a team assignment; each team should complete and turn in a PDF created f
 Description of data set
 1. What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
 **Data sources**
-*monkey_pox data source is from European Center for Disease Prevention and Control(ECDC), data on monkey pox cases in the EU/EEA is accessible at:_ https://www.ecdc.europa.eu/en/publications-data/data-monkeypox-cases-eueea*
 
-*pop_denominator data source is from European commission, data is accessible at: https://ec.europa.eu/eurostat/databrowser/view/tps00001/default/table?lang=en*
+*monkey_pox data source is from European Center for Disease Prevention and Control(ECDC)*
 
-*census_stat *
-*world_country_region*
+*pop_denominator data source is from European commission*
+
+*census_stat data source is from European census statistics 2011*
+
+*world_country_region data source is from European census*
+
+
 
 
 2. How does the data set relate to the group problem statement and question?
@@ -25,26 +29,28 @@ _The data set is going to help us understand how monkey pox case rates may diffe
 
 \newpage 
 Import statement
-NOTE: Please use data sets available in the PHW251 Project Data github repo Links to an external site. (this is important to make sure everyone is using the same data sets)(done)
-Use appropriate import function and package based on the type of file(done)
-Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)(working on it)
-Document the import process(working on it)
 
-Loading the library to be used in this assignment
+NOTE: Please use data sets available in the PHW251 Project Data github repo Links to an external site. (this is important to make sure everyone is using the same data sets)
+
+Use appropriate import function and package based on the type of file(done)
+
+**Loading the library to be used in this assignment**
 ```{r}
 library(tidyverse)
 library(readr)
 library(janitor)
+library(purrr)
+library(stringr)
 ```
+Utilize function arguments to control relevant components (i.e. change column types, column names, missing values, etc.)
 
-Importing data from git repositories
+**Importing data from git repositories**
 ```{r}
 file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
 monkey_pox <-read_csv(file_path1,na = c("", "NA", "*", "n/a"))%>% clean_names()
-monkey_pox
 
 file_path2<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
-pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()
+pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()%>% rename(country_code = geo)
 
 
 file_path3<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
@@ -56,18 +62,16 @@ world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>% cle
 
 
 ```
-
+Document the import process(working on it)
 
 
 \newpage
 
 Identify data types for 5+ data elements/columns/variables
-
 Utilize functions or resources in RStudio to determine the types of each data element (i.e. character, numeric, factor)
  
 
 ```{r}
-library(purrr)
 map(monkey_pox, class)
 map(pop_denominator,class)
 map(world_country_region,class)
@@ -75,9 +79,11 @@ map(census_stats,class)
 ```
 Identify 5+ data elements required for your specified scenario. If <5 elements are required to complete the analysis, please choose additional variables of interest in the data set to explore in this milestone.
 
-_confirmed cases, sub_region, time period, age, education and sex_
+_confirmed cases,date reported, sub_region, time period, age, education, sex, employment status_
 
 Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type?
+
+*education from character to string, date reported from date to integer (month),*
 
 \newpage
 Provide a basic description of the 5+ data elements
