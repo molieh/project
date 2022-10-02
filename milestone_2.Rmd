@@ -7,8 +7,10 @@ output: pdf_document
 
 This is a team assignment; each team should complete and turn in a PDF created from an Rmd via Github. Please include code and output for the following components:
 
-Description of data set
+**Description of data set**
+
 1. What is the data source? (1-2 sentences on where the data is coming from, dates included, etc.)
+
 **Data sources**
 
 *monkey_pox data source is from European Center for Disease Prevention and Control(ECDC)*
@@ -48,21 +50,40 @@ Utilize function arguments to control relevant components (i.e. change column ty
 ```{r}
 file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
 monkey_pox <-read_csv(file_path1,na = c("", "NA", "*", "n/a"))%>% clean_names()
-
+str(monkey_pox)
 file_path2<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
-pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a"))%>% clean_names()%>% rename(country_code = geo)
-
+pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a")) %>%
+  clean_names() %>% 
+  rename(country_code = geo)
+str(pop_denominator)
 
 file_path3<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
 census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% clean_names()
-
+str(census_stats)
 
 file_path4<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
 world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>% clean_names()
+str(world_country_region)
 
 
 ```
-Document the import process(working on it)
+
+
+**Document the import process**
+
+*Firstly the packages were loaded that will enable us to import data and clean the data*
+
+*Then the file paths were extracted and renamed for each data set that we are  going to use through out the project.*
+
+*Each data set was imported separately*
+
+*All data set were imported using read_csv() function because all file were in the text format*
+
+*All the variable were cleaned through clean_name() function which makes converted the variable names into lower case font , and remove the space between the variable by replacing it with underscore symbol*
+
+*For those with missing information we used N/A because it was not easy to compute the information due to the fact that it is not accessible*
+
+*Finally, we used str() function to view the information regarding variable names, data type and few row data  for each variable*
 
 
 \newpage
@@ -83,7 +104,7 @@ _confirmed cases,date reported, sub_region, time period, age, education, sex, em
 
 Identify the desired type/format for each variable—will you need to convert any columns to numeric or another type?
 
-*education from character to string, date reported from date to integer (month),*
+*education from character to string, date reported from date to integer (month) then convert month data type into character or string*
 
 \newpage
 Provide a basic description of the 5+ data elements
@@ -94,17 +115,49 @@ summary(monkey_pox$conf_cases)
 summary(pop_denominator$time_period)
 ```
 
+**Basic description**
+
+*Looking at the confirmed cases from monkey pox data set: the minimum cases reported is zero while the mean is 5.715 followed by the maximum cases reported being 655 cases.*
+
+*As for the time period from population denominator data set: the minimum year is 2011 , mean year is 2016 and the most recent time period is 2022*
 
 Character:  unique values/categories
 ```{r}
-x<-unique(world_country_region$sub_region)
-x
-z<-unique(census_stats$age)
-z
-w<- unique(census_stats$edu)
-w
-y<- unique(census_stats$sex)
-y
+sub_region_categories<-unique(world_country_region$sub_region)
+sub_region_categories
+
+age_groups<-unique(census_stats$age)
+age_groups
+
+education_categories<- unique(census_stats$edu)
+education_categories
+
+sex_categories<- unique(census_stats$sex)
+sex_categories
+
+employment_statu_categories<- unique(census_stats$cas)
+employment_statu_categories
+
+date_reported_values <- unique(monkey_pox$date_rep)
+date_reported_values
+
+
 ```
 
-Or any other descriptives that will be useful to the analysis
+**Basic description **
+
+*Sub_region has 17 categories*
+*Age variable consists of 6 categories*
+*Education variable consists of 9 categories*
+*Sex variable consists of 2 categories*
+*Employment_status variable consists of 5 categories*
+
+*date reported variable start with 2022/05/09 and the most recent date reported is 2022/08/23 this means that the cases were reported from May 2022 to August 2022. Therefore the cases were reported for 4 months in total.*
+
+
+**any other descriptive that will be useful to the analysis**
+
+*Age, education, sex, and employment variable categories need to be renamed so that the will be very informative and to allow easy understanding for the reader because at the moment the data was captured using the code defined in the questionnaire*
+
+
+*Date reported variable need to be manipulated : we are going to extract only month so that we can do the analysis comparing cases per month.*
