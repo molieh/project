@@ -1,0 +1,399 @@
+---
+title: "Milestone_3"
+author: "Moliehi Mokete and Bongekile Nkosi"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+**Loading the libraries**
+
+```{r, include=T,echo=FALSE}
+library(tidyverse)
+library(readr)
+library(janitor)
+library(purrr)
+library(stringr)
+```
+
+**loading the MPX data**
+```{r}
+file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
+monkey_pox <-read_csv(file_path1,na=c("","NA","*", "n/a"),
+                      show_col_types = FALSE)%>% clean_names()
+
+monkey_pox<- monkey_pox%>% mutate(month_rep= months(date_rep))%>%
+  group_by(country_code,month_rep)%>%
+  mutate(total_conf_case = sum(conf_cases))
+
+ var_info_MPX <- data.frame(Variable = names(monkey_pox),
+                      VariableType = sapply(monkey_pox, class),
+                      MissingValues = sapply(monkey_pox, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_MPX 
+ 
+ monkey_pox <- monkey_pox %>%
+arrange(country_code) %>%
+group_by(month_rep) %>%
+filter(!duplicated(country_code))
+ 
+ monkey_pox<-monkey_pox %>% 
+   select(country_code,month_rep,total_conf_case)
+
+```
+\newpage
+
+**Loading Population denominator dataset**
+
+```{r}
+file_path2<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
+pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a")) %>%
+  clean_names() %>% 
+  rename(country_code = geo)
+
+ var_info_PD <- data.frame(Variable = names(pop_denominator),
+                      VariableType = sapply(pop_denominator, class),
+                      MissingValues = sapply(pop_denominator, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_PD 
+ 
+ pop_denominator <- pop_denominator%>% 
+   filter(time_period== 2022)%>%
+   select(country_code, time_period)
+
+```
+
+\newpage
+
+**Loading world country region dataset**
+
+```{r}
+file_path4<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
+world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>%
+  clean_names()
+
+var_info_WCR <- data.frame(Variable = names(world_country_region),
+                      VariableType = sapply(world_country_region, class),
+                      MissingValues = sapply(world_country_region, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_WCR
+ 
+country_code_categories<-unique(monkey_pox$country_code)
+country_code_categories
+ 
+ world_country_region<-world_country_region %>% 
+  mutate(country_code= case_when(str_detect(alpha_2,"at")~"AT",
+                          str_detect(alpha_2,"be")~"BE",
+                          str_detect(alpha_2,"bg")~"BG",
+                          str_detect(alpha_2,"cy")~"CY",
+                          str_detect(alpha_2,"cz")~"CZ",
+                          str_detect(alpha_2,"de")~"DE",
+                          str_detect(alpha_2,"dk")~"DK",
+                          str_detect(alpha_2,"ee")~"EE",
+                          str_detect(alpha_2,"el")~"EL",
+                          str_detect(alpha_2,"es")~"ES",
+                          str_detect(alpha_2,"fi")~"FI",
+                          str_detect(alpha_2,"fr")~"FR",
+                          str_detect(alpha_2,"hr")~"HR",
+                          str_detect(alpha_2,"hu")~"HU",
+                          str_detect(alpha_2,"ie")~"IE",
+                          str_detect(alpha_2,"is")~"IS",
+                          str_detect(alpha_2,"it")~"IT",
+                          str_detect(alpha_2,"lt")~"LT",
+                          str_detect(alpha_2,"lu")~"lu",
+                          str_detect(alpha_2,"lv")~"LV",
+                          str_detect(alpha_2,"mt")~"MT",
+                          str_detect(alpha_2,"nl")~"NL",
+                          str_detect(alpha_2,"no")~"NO",
+                          str_detect(alpha_2,"pl")~"PL",
+                          str_detect(alpha_2,"pt")~"PT",
+                          str_detect(alpha_2,"ro")~"RO",
+                          str_detect(alpha_2,"se")~"SE",
+                          str_detect(alpha_2,"si")~"SI",
+                          str_detect(alpha_2,"sk")~"SK",
+                         TRUE~NA_character_))%>%
+   drop_na(country_code)
+ 
+ world_country_region<- world_country_region%>%
+   select(country_code, sub_region)
+
+```
+\newpage
+
+**Loading Census Data set**
+
+```{r}
+file_path3<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
+census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% 
+  clean_names()
+
+var_info_CS <- data.frame(Variable = names(census_stats),
+                      VariableType = sapply(census_stats, class),
+                      MissingValues = sapply(census_stats, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info_CS
+
+edu_categories<-unique(census_stats$edu)
+edu_categories
+
+cas_categories<-unique(census_stats$cas)
+cas_categories
+
+age_categories <- unique(census_stats$age)
+age_categories
+ 
+sex_categories<- unique(census_stats$sex)
+sex_categories
+
+census_stats<-census_stats %>% 
+  mutate(edu= case_when(edu=="NONE" ~ "No formal education",
+                        edu== "ED1" ~ "Primary education",
+                        edu== "ED2" ~ "Lower secondary education",
+                        edu== "ED3" ~ "Upper secondary education",
+           edu== "ED4" ~ "Post secondary non-tertiary education (tradeschool)",
+                  edu== "ED5" ~ "First stage of tertiary education (college)",
+           edu== "ED6" ~ "Second stage of tertiary education (grad school)",
+           TRUE~NA_character_))%>%
+  drop_na(edu)%>%
+  mutate(cas= case_when(cas== "ACT" ~ "Total economically active",
+                        cas== "EMP" ~ "Employed (among economically active)",
+                        cas== "UNE" ~ "Unemployed (among economically active)",
+                        cas== "INAC" ~ "Total economically inactive",
+                        TRUE~NA_character_))%>%
+  drop_na(cas)%>%
+  mutate(age=case_when(age== "Y_LT15" ~ " < 15",
+                         age== "Y15-29" ~ "15-29",
+                         age== "Y30-49" ~ "30-49",
+                         age== "Y50-64" ~ "50-64",
+                         age== "Y65-84" ~ "65-84",
+                         TRUE ~ " 85+"))%>%
+  mutate(sex=case_when(sex=="F"~ "Female",
+                       TRUE~"Male"))
+
+  census_stats_edu<- census_stats %>%
+  group_by(country_code,edu) %>% 
+  summarise(total_pop_edu = n())
+
+census_stats_cas <- census_stats %>%
+  group_by(country_code, cas)%>%
+summarise(total_pop_cas = n())
+
+census_stats_sex <- census_stats %>%
+  group_by(country_code, sex)%>%
+summarise(total_pop_sex= n())
+census_stats_age <- census_stats %>%
+  group_by(country_code, age)%>%
+summarise(total_pop_age= n())
+
+census_stats_respop <- census_stats %>%
+  group_by(country_code, res_pop)%>%
+summarise(total_pop_respop= n())
+
+                      
+
+```
+
+**Joining all data sets**
+
+```{r}
+joined_df <- merge(monkey_pox, pop_denominator, by.x = "country_code", 
+             by.y = "country_code", all.x = TRUE, all.y = FALSE)
+
+var_info <- data.frame(Variable = names(joined_df),
+                      VariableType = sapply(joined_df, class),
+                      MissingValues = sapply(joined_df, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info
+
+joined_df <- merge(joined_df, world_country_region, by.x = "country_code", 
+             by.y = "country_code", all.x = TRUE, all.y = FALSE)
+
+var_info <- data.frame(Variable = names(joined_df),
+                      VariableType = sapply(joined_df, class),
+                      MissingValues = sapply(joined_df, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info
+
+joined_df<- joined_df%>%
+  mutate(sub_region=ifelse(country_code=="EL","Southeast Europe",sub_region),
+  sub_region=ifelse(country_code=="LU","Northwestern Europe",sub_region))
+
+
+joined_df_edu <- merge( joined_df, census_stats_edu,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+joined_df_cas <- merge( joined_df, census_stats_cas,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+joined_df_sex <- merge( joined_df, census_stats_sex,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+
+joined_df_age <- merge( joined_df, census_stats_age,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+joined_df_popdensity<- merge( joined_df, census_stats_respop,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+```
+
+
+\newpage
+Data dictionary based on clean dataset (minimum 4 data elements), including:
+Variable name
+Data type
+Description
+
+```{r}
+data_dict <- function(joined_df, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df),
+    "Variable Type" = sapply(joined_df,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df[], desc =c(
+  "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  " the recent time period",
+  "countries sub regions in Europe"))
+
+data_dict <- function(joined_df_age, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df_age),
+    "Variable Type" = sapply(joined_df_age,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df_age[],desc=c(
+   "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  " the recent time period",
+  "countries sub regions in Europe",
+  " age groups of the population",
+  "total population per age group"))
+
+data_dict <- function(joined_df_cas, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df_cas),
+    "Variable Type" = sapply(joined_df_cas,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df_cas[],desc=c(
+  "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  "the recent time period",
+  "countries sub regions in Europe",
+  "economical status of the population",
+  "total population per economical status"))
+
+data_dict <- function(joined_df_edu, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df_edu),
+    "Variable Type" = sapply(joined_df_edu,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df_edu[],desc=c(
+   "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  "the recent time period",
+  "countries sub regions in Europe",
+  "the categories of education level",
+  "total population per education level"))
+
+data_dict <- function(joined_df_sex, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df_sex),
+    "Variable Type" = sapply(joined_df_sex,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df_sex[],desc=c(
+  "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  " the recent time period",
+  "countries sub regions in Europe",
+  " sex of the population",
+  " total population per sex"))
+
+data_dict <- function(joined_df_popdensity, desc = c()){
+  data.frame(
+    "Variable Name" = names(joined_df_popdensity),
+    "Variable Type" = sapply(joined_df_popdensity,class),
+    "Variable Description" = desc, 
+    check.names = FALSE, row.names = NULL
+  )
+}
+
+data_dict(joined_df_popdensity [],desc=c(
+  "country code ", 
+  "months cases were reported",
+  "total MPX cases recorded",
+  " the recent time period",
+  "countries sub regions in Europe", 
+  "categories of population density",
+  "total population per population density"))
+```
+
+\newpage
+One or more tables with descriptive statistics for 4 data element
+
+```{r}
+summary_stas<-joined_df%>%
+  group_by(month_rep)%>%
+  summarise(mean= mean(total_conf_case), sd=sd(total_conf_case),
+            max=max(total_conf_case),min=min(total_conf_case))
+summary_stas
+
+summary_stas<-joined_df%>%
+  group_by(sub_region)%>%
+  summarise(mean_cases= mean(total_conf_case), sd_cases=sd(total_conf_case),
+            max_cases=max(total_conf_case),min_cases=min(total_conf_case))
+summary_stas
+summary_stas<-joined_df_edu%>%
+  group_by(sub_region)%>%
+  summarise(mean_edu= mean(total_pop_edu), sd_edu=sd(total_pop_edu),
+            max_edu=max(total_pop_edu),min_edu=min(total_pop_edu))
+summary_stas
+
+summary_stas<-joined_df_cas%>%
+  group_by(sub_region)%>%
+  summarise(mean_cas= mean(total_pop_cas), sd_cas=sd(total_pop_cas),
+            max_cas=max(total_pop_cas),min_cas=min(total_pop_cas))
+summary_stas
+
+summary_stas<-joined_df_age%>%
+  group_by(sub_region)%>%
+  summarise(mean_age= mean(total_pop_age), sd_age=sd(total_pop_age),
+            max_age=max(total_pop_age),min_age=min(total_pop_age))
+summary_stas
+
+  
+```
+
