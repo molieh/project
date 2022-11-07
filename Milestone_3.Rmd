@@ -225,7 +225,10 @@ var_info
 
 joined_df<- joined_df%>%
   mutate(sub_region=ifelse(country_code=="EL","Southeast Europe",sub_region),
-  sub_region=ifelse(country_code=="LU","Northwestern Europe",sub_region))
+  sub_region=ifelse(country_code=="LU","Northwestern Europe",sub_region))%>%
+  group_by(sub_region)%>%
+  mutate(total_case_region= sum(total_conf_case),
+         rate_per_region= total_conf_case/total_case_region*100)
 
 
 joined_df_edu <- merge( joined_df, census_stats_edu,by.x ="country_code", 
@@ -268,7 +271,9 @@ data_dict(joined_df[], desc =c(
   "months cases were reported",
   "total MPX cases recorded",
   " the recent time period",
-  "countries sub regions in Europe"))
+  "countries sub regions in Europe",
+  "total MPX cases per sub region",
+  "rate of MPX per month per sub_region"))
 
 data_dict <- function(joined_df_age, desc = c()){
   data.frame(
@@ -283,10 +288,13 @@ data_dict(joined_df_age[],desc=c(
    "country code ", 
   "months cases were reported",
   "total MPX cases recorded",
-  " the recent time period",
+  "the recent time period",
   "countries sub regions in Europe",
-  " age groups of the population",
-  "total population per age group"))
+  "total MPX cases per sub region",
+  "rate of MPX per month per sub_region",
+  "age groups of the population",
+  "total population per age group"
+  ))
 
 data_dict <- function(joined_df_cas, desc = c()){
   data.frame(
@@ -303,6 +311,8 @@ data_dict(joined_df_cas[],desc=c(
   "total MPX cases recorded",
   "the recent time period",
   "countries sub regions in Europe",
+  "total MPX cases per sub region",
+  "rate of MPX per month per sub_region",
   "economical status of the population",
   "total population per economical status"))
 
@@ -321,6 +331,8 @@ data_dict(joined_df_edu[],desc=c(
   "total MPX cases recorded",
   "the recent time period",
   "countries sub regions in Europe",
+  "total MPX cases per sub region",
+  "rate of MPX per month per sub_region",
   "the categories of education level",
   "total population per education level"))
 
@@ -337,10 +349,12 @@ data_dict(joined_df_sex[],desc=c(
   "country code ", 
   "months cases were reported",
   "total MPX cases recorded",
-  " the recent time period",
+  "the recent time period",
   "countries sub regions in Europe",
-  " sex of the population",
-  " total population per sex"))
+  "total MPX cases per region",
+  "rate of MPX per month per region",
+  "sex of the population",
+  "total population per sex"))
 
 data_dict <- function(joined_df_popdensity, desc = c()){
   data.frame(
@@ -355,45 +369,38 @@ data_dict(joined_df_popdensity [],desc=c(
   "country code ", 
   "months cases were reported",
   "total MPX cases recorded",
-  " the recent time period",
-  "countries sub regions in Europe", 
+  "the recent time period",
+  "countries regions in Europe",
+  "total MPX cases per region",
+  "rate of MPX per month per region",
   "categories of population density",
   "total population per population density"))
+
 ```
 
 \newpage
 One or more tables with descriptive statistics for 4 data element
 
 ```{r}
-summary_stas<-joined_df%>%
-  group_by(month_rep)%>%
-  summarise(mean= mean(total_conf_case), sd=sd(total_conf_case),
-            max=max(total_conf_case),min=min(total_conf_case))
-summary_stas
+summary(joined_df$total_conf_case)
+summary(joined_df$total_case_region)
+summary(joined_df$rate_per_region)
+summary(joined_df_age$total_pop_age)
 
-summary_stas<-joined_df%>%
-  group_by(sub_region)%>%
-  summarise(mean_cases= mean(total_conf_case), sd_cases=sd(total_conf_case),
-            max_cases=max(total_conf_case),min_cases=min(total_conf_case))
-summary_stas
-summary_stas<-joined_df_edu%>%
-  group_by(sub_region)%>%
-  summarise(mean_edu= mean(total_pop_edu), sd_edu=sd(total_pop_edu),
-            max_edu=max(total_pop_edu),min_edu=min(total_pop_edu))
-summary_stas
+```
+```{r}
+library(kableExtra)
+descriptive_statistics_table<-data.frame(
+  "Minimum"= c(0.00,4,0.0000,392.0),
+  "First Quartile"= c(2.00,277,0.1762,392.0),
+  "Median"= c(11.50,576,1.5625,549.0),
+  "Mean" = c(147.17,3291,6.0345,538.7),
+  "Third Quartile"=c (54.25, 7906, 5.7615, 667.0),
+  "Maximum" = c(3244.00,8210,100.000,728.0),
+  row.names = c("Monthly Total Cases","Total Cases per Region", 
+                "Rate per month per region", "total population per age group"))
 
-summary_stas<-joined_df_cas%>%
-  group_by(sub_region)%>%
-  summarise(mean_cas= mean(total_pop_cas), sd_cas=sd(total_pop_cas),
-            max_cas=max(total_pop_cas),min_cas=min(total_pop_cas))
-summary_stas
-
-summary_stas<-joined_df_age%>%
-  group_by(sub_region)%>%
-  summarise(mean_age= mean(total_pop_age), sd_age=sd(total_pop_age),
-            max_age=max(total_pop_age),min_age=min(total_pop_age))
-summary_stas
-
-  
+kable(descriptive_statistics_table, booktabs=T, digits= c(1,1,1,0),
+      caption= "Descriptive statistics for data elements")
 ```
 
