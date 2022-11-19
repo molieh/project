@@ -1,0 +1,28 @@
+---
+title: "Milestone_4"
+author: "Moliehi Mokete"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. Visualizations (at least one per group member) 
+One print quality table as requested in scenario
+One print quality plot or chart as requested in scenario
+For groups of 3, one additional print quality table or plot of your choice (can support the requested data in the scenario, or answer a different question using the same data sources)
+2. For each visual, include
+Code used to generate visual
+Legend (if necessary)
+1-2 sentence interpretation 
+NOTE:
+Please make sure visual can stand-alone, meaning it includes enough information in title, legend, and footnote so that a person who sees only the visualization could understand what is being presented.
+Please also make sure column names, axis labels, and any other labels are meaningful and not just the name of the variable (ex: "County" rather than "county_name")
+PDF that is professionally prepared for presentation
+Each part of the milestone is clearly on one page (use \newpage to push to a new page)
+Only the necessary information is outputted (e.g., suppressing entire data frame outputs)
+Show your work by "echoing" code used in Rmd file to create your tables and graphs. ```{r, echo = TRUE} in code chunk preferences.
+Use of headers and sub headers to create an organized document
+For this milestone please make sure code for visualizations are included in the final knitted file

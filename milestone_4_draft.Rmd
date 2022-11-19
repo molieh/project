@@ -1,0 +1,312 @@
+---
+title: "Milestone_4"
+author: "Moliehi Mokete and Bongekile Nkosi"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r, include=T,echo=FALSE}
+library(dplyr)
+library(readr)
+library(janitor)
+library(purrr)
+library(stringr)
+
+```
+
+
+```{r,include=FALSE, echo=FALSE}
+file_path1<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_mpx_cases.csv"
+monkey_pox <-read_csv(file_path1,na=c("","NA","*", "n/a"),
+                      show_col_types = FALSE)%>% clean_names()
+
+monkey_pox<- monkey_pox%>% mutate(month_rep= months(date_rep))%>%
+  group_by(country_code,month_rep)%>%
+  summarise(total_conf_case = sum(conf_cases))
+
+
+
+ var_info_MPX <- data.frame(Variable = names(monkey_pox),
+                      VariableType = sapply(monkey_pox, class),
+                      MissingValues = sapply(monkey_pox, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_MPX 
+ 
+ 
+ monkey_pox<-monkey_pox %>% 
+   select(country_code,month_rep,total_conf_case)
+
+```
+
+
+
+
+```{r,include=FALSE,echo=FALSE}
+file_path2<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_pop_denominators.csv" 
+pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a")) %>%
+  clean_names() %>% 
+  rename(country_code = geo)
+
+ var_info_PD <- data.frame(Variable = names(pop_denominator),
+                      VariableType = sapply(pop_denominator, class),
+                      MissingValues = sapply(pop_denominator, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_PD 
+ 
+ pop_denominator <- pop_denominator%>% 
+   filter(time_period== 2022)%>%
+   select(country_code, time_period)
+
+```
+
+
+
+
+
+```{r,include=FALSE,echo=FALSE}
+file_path4<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
+world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>%
+  clean_names()
+
+var_info_WCR <- data.frame(Variable = names(world_country_region),
+                      VariableType = sapply(world_country_region, class),
+                      MissingValues = sapply(world_country_region, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+ var_info_WCR
+ 
+country_code_categories<-unique(monkey_pox$country_code)
+country_code_categories
+ 
+ world_country_region<-world_country_region %>% 
+  mutate(country_code= case_when(str_detect(alpha_2,"at")~"AT",
+                          str_detect(alpha_2,"be")~"BE",
+                          str_detect(alpha_2,"bg")~"BG",
+                          str_detect(alpha_2,"cy")~"CY",
+                          str_detect(alpha_2,"cz")~"CZ",
+                          str_detect(alpha_2,"de")~"DE",
+                          str_detect(alpha_2,"dk")~"DK",
+                          str_detect(alpha_2,"ee")~"EE",
+                          str_detect(alpha_2,"el")~"EL",
+                          str_detect(alpha_2,"es")~"ES",
+                          str_detect(alpha_2,"fi")~"FI",
+                          str_detect(alpha_2,"fr")~"FR",
+                          str_detect(alpha_2,"hr")~"HR",
+                          str_detect(alpha_2,"hu")~"HU",
+                          str_detect(alpha_2,"ie")~"IE",
+                          str_detect(alpha_2,"is")~"IS",
+                          str_detect(alpha_2,"it")~"IT",
+                          str_detect(alpha_2,"lt")~"LT",
+                          str_detect(alpha_2,"lu")~"lu",
+                          str_detect(alpha_2,"lv")~"LV",
+                          str_detect(alpha_2,"mt")~"MT",
+                          str_detect(alpha_2,"nl")~"NL",
+                          str_detect(alpha_2,"no")~"NO",
+                          str_detect(alpha_2,"pl")~"PL",
+                          str_detect(alpha_2,"pt")~"PT",
+                          str_detect(alpha_2,"ro")~"RO",
+                          str_detect(alpha_2,"se")~"SE",
+                          str_detect(alpha_2,"si")~"SI",
+                          str_detect(alpha_2,"sk")~"SK",
+                         TRUE~NA_character_))%>%
+   drop_na(country_code)
+ 
+ world_country_region<- world_country_region%>%
+   select(country_code, sub_region)
+
+```
+
+
+
+```{r,include=FALSE, echo=FALSE}
+file_path3<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/euro_census_stats.csv"
+census_stats <- read.csv(file_path3,na = c("", "NA", "*", "n/a"))%>% 
+  clean_names()
+
+var_info_CS <- data.frame(Variable = names(census_stats),
+                      VariableType = sapply(census_stats, class),
+                      MissingValues = sapply(census_stats, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info_CS
+
+edu_categories<-unique(census_stats$edu)
+edu_categories
+
+cas_categories<-unique(census_stats$cas)
+cas_categories
+
+age_categories <- unique(census_stats$age)
+age_categories
+ 
+sex_categories<- unique(census_stats$sex)
+sex_categories
+
+census_stats<-census_stats %>% 
+  mutate(edu= case_when(edu=="NONE" ~ "No formal education",
+                        edu== "ED1" ~ "Primary education",
+                        edu== "ED2" ~ "Lower secondary education",
+                        edu== "ED3" ~ "Upper secondary education",
+           edu== "ED4" ~ "Post secondary non-tertiary education (tradeschool)",
+                  edu== "ED5" ~ "First stage of tertiary education (college)",
+           edu== "ED6" ~ "Second stage of tertiary education (grad school)",
+           TRUE~NA_character_))%>%
+  drop_na(edu)%>%
+  mutate(cas= case_when(cas== "ACT" ~ "Total economically active",
+                        cas== "EMP" ~ "Employed (among economically active)",
+                        cas== "UNE" ~ "Unemployed (among economically active)",
+                        cas== "INAC" ~ "Total economically inactive",
+                        TRUE~NA_character_))%>%
+  drop_na(cas)%>%
+  mutate(age=case_when(age== "Y_LT15" ~ " < 15",
+                         age== "Y15-29" ~ "15-29",
+                         age== "Y30-49" ~ "30-49",
+                         age== "Y50-64" ~ "50-64",
+                         age== "Y65-84" ~ "65-84",
+                         TRUE ~ " 85+"))%>%
+  mutate(sex=case_when(sex=="F"~ "Female",
+                       TRUE~"Male"))
+
+  census_stats_edu<- census_stats %>%
+  group_by(country_code,edu) %>% 
+  summarise(total_pop_edu = n())
+  
+  census_stats_edu <- census_stats_edu %>%
+  pivot_wider(names_from = "edu", names_prefix = "edu_", 
+              values_from = total_pop_edu)
+
+census_stats_cas <- census_stats %>%
+  group_by(country_code, cas)%>%
+summarise(total_pop_cas = n())
+
+census_stats_cas <- census_stats_cas%>%
+  pivot_wider(names_from = "cas", names_prefix = "cas_", 
+              values_from = total_pop_cas)
+
+census_stats_sex <- census_stats %>%
+  group_by(country_code, sex)%>%
+summarise(total_pop_sex= n())
+census_stats_sex <- census_stats_sex %>%
+  pivot_wider(names_from = "sex", names_prefix = "sex_",
+              values_from = total_pop_sex)
+
+census_stats_age <- census_stats %>%
+  group_by(country_code, age)%>%
+summarise(total_pop_age= n())
+census_stats_age<- census_stats_age %>%
+  pivot_wider(names_from = "age", names_prefix = "age_", 
+              values_from = total_pop_age)
+
+census_stats_respop <- census_stats %>%
+  group_by(country_code, res_pop)%>%
+summarise(total_pop_respop= n())
+census_stats_respop <- census_stats_respop%>%
+  pivot_wider(names_from = "res_pop", names_prefix = "res_pop_",
+              values_from = total_pop_respop)
+
+                      
+
+```
+
+
+
+```{r, include=FALSE, echo=FALSE}
+joined_df <- merge(monkey_pox, pop_denominator, by.x = "country_code", 
+             by.y = "country_code", all.x = TRUE, all.y = FALSE)
+
+var_info <- data.frame(Variable = names(joined_df),
+                      VariableType = sapply(joined_df, class),
+                      MissingValues = sapply(joined_df, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info
+
+joined_df <- merge(joined_df, world_country_region, by.x = "country_code", 
+             by.y = "country_code", all.x = TRUE, all.y = FALSE)
+
+var_info <- data.frame(Variable = names(joined_df),
+                      VariableType = sapply(joined_df, class),
+                      MissingValues = sapply(joined_df, function(y) 
+                        sum(length(which(is.na(y))))),
+                      row.names = NULL)
+var_info
+
+joined_df <- joined_df %>% drop_na(sub_region)%>%
+   filter(!(sub_region == "Western Asia"))
+
+total_dataset<- joined_df%>% 
+  group_by(country_code)%>%
+  mutate(total_MPX_case = sum(total_conf_case))%>%
+  select(country_code, total_MPX_case,time_period, sub_region)
+
+
+
+
+total_dataset <- merge( total_dataset, census_stats_edu,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+total_dataset <- merge( total_dataset, census_stats_cas,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+total_ <- merge( joined_df, census_stats_sex,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+
+joined_df_age <- merge( joined_df, census_stats_age,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+joined_df_popdensity<-merge( joined_df,
+                             census_stats_respop,by.x ="country_code", 
+                       by.y = "country_code",all.x = TRUE, all.y = FALSE)
+
+```
+
+
+**1. One print quality table as requested in scenario:**
+
+**case rates by month for different regions within the EU.**
+
+
+```{r}
+library(kableExtra)
+summary_table1<- joined_df%>%
+  group_by(sub_region, month_rep)%>%
+  summarise(total_case_region= sum(total_conf_case))%>%
+  mutate(monthly_cases_per_region= sum(total_case_region), 
+  MPX_cases_rate_per_region = total_case_region/monthly_cases_per_region*100)%>%
+  arrange(sub_region, desc(month_rep))
+
+kable(summary_table1, 
+      booktabs=T, 
+      col.names=c("EU Regions", "Months  MPX cases reported", "MPX cases", 
+                  "Total MPX cases per region", 
+                  "MPX cases rate per month per region"),  
+      align='lcccc', 
+caption="MonkeyPox Rates per month for different regions within the EU in 2022",
+      format.args=list(big.mark=",")) 
+
+```
+\newpage
+
+**One print quality plot or chart as requested in scenario**
+
+```{r}
+summary_table1$month_rep<- factor(summary_table1$month_rep)                     
+    
+    summary_table1 %>% 
+      ggplot(aes( x=sub_region, y= MPX_cases_rate_per_region,fill=month_rep)) +
+      geom_bar(stat="identity")+
+      labs(x = "EU Regions", y = "MonkeyPox Cases Rate")+
+      ggtitle("Stacked bar chart of monkeypox case rates by 
+      month for different regions within the EU")
+```
+
+
