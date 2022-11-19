@@ -256,14 +256,14 @@ total_dataset <- merge( total_dataset, census_stats_edu,by.x ="country_code",
 total_dataset <- merge( total_dataset, census_stats_cas,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
-total_ <- merge( joined_df, census_stats_sex,by.x ="country_code", 
+total_dataset <- merge( total_dataset, census_stats_sex,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
 
-joined_df_age <- merge( joined_df, census_stats_age,by.x ="country_code", 
+total_dataset <- merge( total_dataset, census_stats_age,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
-joined_df_popdensity<-merge( joined_df,
+joined_df_popdens<-merge( joined_df,
                              census_stats_respop,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
