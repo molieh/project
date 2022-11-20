@@ -12,12 +12,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r, include=T,echo=FALSE}
-library(dplyr)
+library(tidyverse)
 library(readr)
 library(janitor)
 library(purrr)
 library(stringr)
-
+library(kableExtra)
 ```
 
 
@@ -68,9 +68,6 @@ pop_denominator<- read.csv(file_path2,na = c("", "NA", "*", "n/a")) %>%
 ```
 
 
-
-
-
 ```{r,include=FALSE,echo=FALSE}
 file_path4<-"https://raw.githubusercontent.com/PHW290/phw251_projectdata/main/world_country_regions.csv"
 world_country_region <- read.csv(file_path4,na = c("", "NA", "*", "n/a"))%>%
@@ -105,7 +102,7 @@ country_code_categories
                           str_detect(alpha_2,"is")~"IS",
                           str_detect(alpha_2,"it")~"IT",
                           str_detect(alpha_2,"lt")~"LT",
-                          str_detect(alpha_2,"lu")~"lu",
+                          str_detect(alpha_2,"lu")~"LU",
                           str_detect(alpha_2,"lv")~"LV",
                           str_detect(alpha_2,"mt")~"MT",
                           str_detect(alpha_2,"nl")~"NL",
@@ -116,8 +113,10 @@ country_code_categories
                           str_detect(alpha_2,"se")~"SE",
                           str_detect(alpha_2,"si")~"SI",
                           str_detect(alpha_2,"sk")~"SK",
-                         TRUE~NA_character_))%>%
-   drop_na(country_code)
+                         TRUE~NA_character_)) 
+ 
+ world_country_region<- world_country_region %>% drop_na(country_code)
+  
  
  world_country_region<- world_country_region%>%
    select(country_code, sub_region)
@@ -263,25 +262,28 @@ total_dataset <- merge( total_dataset, census_stats_sex,by.x ="country_code",
 total_dataset <- merge( total_dataset, census_stats_age,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
-joined_df_popdens<-merge( joined_df,
+total_dataset<-merge( total_dataset,
                              census_stats_respop,by.x ="country_code", 
                        by.y = "country_code",all.x = TRUE, all.y = FALSE)
 
+total_dataset<- total_dataset%>%
+  filter(!duplicated(country_code))
+total_dataset<- total_dataset%>% clean_names()
 ```
 
+\newpage
+**1.Print quality table as requested in scenario:**
 
-**1. One print quality table as requested in scenario:**
-
-**case rates by month for different regions within the EU.**
+**Case rates by month for different regions within the EU.**
 
 
 ```{r}
-library(kableExtra)
 summary_table1<- joined_df%>%
   group_by(sub_region, month_rep)%>%
   summarise(total_case_region= sum(total_conf_case))%>%
   mutate(monthly_cases_per_region= sum(total_case_region), 
-  MPX_cases_rate_per_region = total_case_region/monthly_cases_per_region*100)%>%
+  MPX_cases_rate_per_region =
+    round( total_case_region/monthly_cases_per_region*100,1))%>%
   arrange(sub_region, desc(month_rep))
 
 kable(summary_table1, 
@@ -296,7 +298,7 @@ caption="MonkeyPox Rates per month for different regions within the EU in 2022",
 ```
 \newpage
 
-**One print quality plot or chart as requested in scenario**
+**2. Print quality plot or chart as requested in scenario**
 
 ```{r}
 summary_table1$month_rep<- factor(summary_table1$month_rep)                     
@@ -308,5 +310,30 @@ summary_table1$month_rep<- factor(summary_table1$month_rep)
       ggtitle("Stacked bar chart of monkeypox case rates by 
       month for different regions within the EU")
 ```
+**Interpretation:**
 
+
+
+\newpage
+
+```{r}
+scatter_plot <- ggplot(data = total_dataset, aes(x = sex_female,
+                                                 y = total_mpx_case)) + 
+  geom_point(na.rm=TRUE) + theme_minimal(base_size = 15)+
+  labs(x = " Total Number of females", 
+       y = "Total number of MonkeyPox cases",
+     title ="Relationship between MonkeyPox cases and
+     Numbers of females within EU")
+scatter_plot
+scatter_plot <- ggplot(data = total_dataset, aes(x = sex_male,
+                                                 y = total_mpx_case)) + 
+  geom_point(na.rm=TRUE) + theme_minimal(base_size = 15)+
+  labs(x = " Total Number of males", 
+       y = "Total number of MonkeyPox cases",
+     title ="Relationship between MonkeyPox cases and
+     Numbers of males within EU")
+scatter_plot
+
+```
+**Interpretation:**
 
