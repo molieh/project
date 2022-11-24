@@ -275,8 +275,7 @@ total_dataset<- total_dataset%>% clean_names()
 ```
 
 \newpage
-**1.Print quality table as requested in scenario:**
-
+**1. Quality table as requested in scenario:**
 **Case rates by month for different regions within the EU.**
 
 
@@ -289,24 +288,31 @@ summary_table1<- joined_df%>%
     round( total_case_region/monthly_cases_per_region*100,1))%>%
   arrange(sub_region, desc(month_rep))
 
-kable(summary_table1, 
-      booktabs=T, 
-      col.names=c("EU Regions", "Months  MPX cases reported", "MPX cases", 
-                  "Total MPX cases per region", 
-                  "MPX cases rate per month per region"),  
-      align='lcccc', 
-caption="MonkeyPox Rates per month for different regions within the EU in 2022",
-      format.args=list(big.mark=",")) 
+summary_table1
 
 ```
+The table 1 displays the distribution of Monkey Pox cases rate per month within 
+different regions of Europe in 2022.
+
+
 \newpage
 
-**1.1 Print quality plot or chart as requested in scenario**
+
+
+**1.1  Quality plot or chart as requested in scenario**
+
 
 ```{r}
-summary_table1$month_rep<- factor(summary_table1$month_rep)                     
+                    
     
-    summary_table1 %>% 
+    summary_table1<-summary_table1 %>%
+      mutate(date_months=case_when(month_rep=="May"~5,
+                                   month_rep=="June"~6,
+                                   month_rep=="July"~7,
+                                   TRUE~8))%>% arrange(date_months)
+    
+summary_table1$month_rep<- factor(summary_table1$month_rep) 
+    summary_table1%>%
       ggplot(aes( x=sub_region, y= MPX_cases_rate_per_region,fill=month_rep)) +
       geom_bar(position="dodge",stat="identity")+
       labs(x = "EU Regions", y = "MonkeyPox Cases Rate")+
@@ -316,54 +322,99 @@ summary_table1$month_rep<- factor(summary_table1$month_rep)
  
 
 ```
+
+
 **Interpretation:**
 
+
+The dodged bar chart describes the distribution of monkey pox cases rate by
+month among four regions of Europe. Among four regions of Europe, Western Europe
+has the most reported monkey pox cases rate during the month of July. In July 
+monkey pox cases rate were mostly reported compared to other months. The month
+of May is the month where the cases of monkey pox in all regions of Europe were 
+least reported, the Southern Europe reported more cases in May compared to other
+European regions.
+
+
 \newpage
-**1.2 Print quality plot or chart as requested in scenario**
+
+**1.2  Quality plot or chart as requested in scenario**
+
+
 ```{r}
-#make a presentable table
+
 plot_ly(
   summary_table1,
-  x=~ month_rep,
+  x=~ date_months,
   y=~MPX_cases_rate_per_region,
   color=~sub_region,
   type="scatter",
   mode="lines",
   colors=c("darkorange","darkcyan","darkslateblue", "darkred")
-  #text = ~paste('Cases: ',cases,'<br>Population: ',population,'<br>Rate: ',rate)
 ) %>%
   layout(
-    title="Alameda County STD Rates, 2001-2018",
-    yaxis=list(title="Case Rate per 100,000"),
-    xaxis=list(title="Year"),
+    title="MonkeyPox rate in Europe within 2022 for four months( May-August)",
+    yaxis=list(title="MonkeyPox Rate"),
+    xaxis=list(title="Month"),
     paper_bgcolor="azure",
     plot_bgcolor="white"
   )
 
 ```
 
+
+**Interpretation:**
+
+
+The scatter plot depicts the relationship of monkey pox cases rate and months 
+cases were reported. The plot shows the increasing cases from May to July with 
+Western Europe region have the highest increase of monkey pox rates compared to 
+other European region. Then there is a decrease of monkey pox cases rate  from 
+July to August , the Southern Europe region experienced most decrease as 
+compared to other European regions. During the month of July , all the European
+regions reported more cases rate compared to other months and Western Europe 
+region reported most cases rate during the month of July. Through out the months 
+of reporting, Northern and Eastern Europe regions were reporting the monkey pox 
+cases rate which is more likely the same .
+
+
 \newpage
 
 ```{r}
- female_summary<- total_dataset%>%
+female_summary<- total_dataset%>%
   mutate(mpx_rate = round(total_mpx_case/ sum(sex_female) *100,2))%>%
   select(country_code, total_mpx_case, sex_female, mpx_rate)%>%
   rename(female_population = sex_female)
 female_summary
+```
 
 
+The table 2 shows the distribution of monkey pox cases rate per female population
+in each county.
+
+
+
+```{r}
 scatter_plot <- ggplot(data = female_summary, aes(x = female_population,
                                                  y = mpx_rate)) + 
   geom_point(na.rm=TRUE) + theme_minimal(base_size = 15)+
   labs(x = " Total Number of females", 
        y = "Total number of MonkeyPox cases",
-     title ="Relationship between MonkeyPox cases and
-     Numbers of females within EU")
+  title ="The scatter plot of MonkeyPox cases and female population
+                   within European counties")
 scatter_plot
-
-
+   
 ```
+
+
 **Interpretation:**
+
+
+The scatter plot shows the relationship between monkey pox cases rate and female
+population. Looking at the plot there is no relationship between monkey pox cases 
+rate and female population, that is, the patterns of the dots in the plot does not 
+inform any relationship between the two variables. Therefore there is nonlinear 
+relationship between female population and monkey pox cases rate in Europe.
 
 
 
@@ -374,13 +425,35 @@ male_summary<- total_dataset%>%
   select(country_code, total_mpx_case, sex_male, mpx_rate)%>%
   rename(male_population = sex_male)
 female_summary
+
+```
+
+The table 3 shows the distribution of monkey pox cases rate per male population
+in each county.
+
+
+
+```{r}
 scatter_plot <- ggplot(data = male_summary, aes(x = male_population,
                                                  y = mpx_rate)) + 
   geom_point(na.rm=TRUE) + theme_minimal(base_size = 15)+
   labs(x = " Total Number of males", 
        y = "Total number of MonkeyPox cases",
-     title ="Relationship between MonkeyPox cases and
-     Numbers of males within EU")
+     title ="The scatter plot of MonkeyPox cases and male population
+                   within European counties")
 scatter_plot
 ```
+
+
+
+**Interpretation:**
+
+
+The scatter plot shows the relationship between monkey pox cases rate and male
+population. Looking at the plot there is no relationship between monkey pox cases 
+rate and male population, that is, the patterns of the dots in the plot does not 
+inform any relationship between the two variables.Therefore there is nonlinear 
+relationship between male population and monkey pox cases rate in Europe.
+
+
 
